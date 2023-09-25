@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Reconcilation.Services
 {
-    public class ReconcilationService : IReconcilationService
+    public class ReconciliationService : IReconciliationService
     {
         /// <summary>
         /// Read data from Excel File and convert the data from Excel to Class List details

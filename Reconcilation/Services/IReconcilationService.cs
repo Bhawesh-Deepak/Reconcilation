@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Reconcilation.Services
 {
-    public interface IReconcilationService
+    public interface IReconciliationService
     {
         List<ProductModel> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping);
 
