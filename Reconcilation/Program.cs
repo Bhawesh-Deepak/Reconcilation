@@ -3,12 +3,13 @@ using Reconcilation.Model;
 using Reconcilation.Services;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Reconcilation
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async void Main(string[] args)
         {
             ///Inject the required service to the main method.
             var collection = new ServiceCollection();
@@ -27,11 +28,14 @@ namespace Reconcilation
                 { "Specification", nameof(ProductModel.Specification) }
             };
 
-            //Fetch the data Information from Excel
-            var productModel1 = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail1.xlsx", propertyMapping).Result;
+            //Fetch the data Information from Excel as Task
+             Task<List<ProductModel>> productModel1Task = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail1.xlsx", propertyMapping);
 
-            //Fetch the data Information from Excel
-            var productModel2 = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail2.xlsx", propertyMapping).Result;
+            //Fetch the data Information from Excel as Task
+            Task<List<ProductModel>> productModel2Task = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail2.xlsx", propertyMapping);
+
+            //Run both the Task Parlelly and fetch the Information
+            await Task.WhenAll(productModel1Task, productModel2Task);
 
             //Perform the final reconcilation steps;
             var response = reconcilationService.ReconcileDataInformation(productModel1, productModel2).Result;
