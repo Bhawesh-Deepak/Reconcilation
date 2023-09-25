@@ -3,14 +3,20 @@ using Reconcilation.Model;
 using Reconcilation.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Reconcilation
 {
     internal class Program
     {
-        static async void Main(string[] args)
+        static void Main(string[] args)
         {
+
+            var watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+
             ///Inject the required service to the main method.
             var collection = new ServiceCollection();
             collection.AddTransient<IReconcilationService, ReconcilationService>();
@@ -28,20 +34,26 @@ namespace Reconcilation
                 { "Specification", nameof(ProductModel.Specification) }
             };
 
-            //Fetch the data Information from Excel as Task
-             Task<List<ProductModel>> productModel1Task = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail1.xlsx", propertyMapping);
+            //Fetch the data Information from Excel
+            var productModel1 =new List<ProductModel>();
 
-            //Fetch the data Information from Excel as Task
-            Task<List<ProductModel>> productModel2Task = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail2.xlsx", propertyMapping);
+            //Fetch the data Information from Excel
+            var productModel2 = new List<ProductModel>();
 
-            //Run both the Task Parlelly and fetch the Information
-            await Task.WhenAll(productModel1Task, productModel2Task);
+
+            // Perform the Task parlelly
+            Parallel.Invoke(
+                () => productModel1 = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail1.xlsx", propertyMapping),
+                () => productModel2 = reconcilationService.ReadDataFromLocation(@"E:\ReconcilationSolution\ProductDetail2.xlsx", propertyMapping)
+                );
 
             //Perform the final reconcilation steps;
-            var response = reconcilationService.ReconcileDataInformation(productModel1, productModel2).Result;
+            var response = reconcilationService.ReconcileDataInformation(productModel1, productModel2);
+
+            watch.Stop();
 
             //Display the required information : Or create the Excel and save the reconcile data information
-            Console.WriteLine("Hello World!");
+            Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds/1000} seconds");
         }
 
 

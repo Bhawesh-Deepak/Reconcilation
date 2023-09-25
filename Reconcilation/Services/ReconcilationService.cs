@@ -17,14 +17,14 @@ namespace Reconcilation.Services
         /// <param name="location"></param>
         /// <param name="propertyMapping"></param>
         /// <returns></returns>
-        public async Task<List<ProductModel>> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping)
+        public List<ProductModel> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping)
         {
             var dataTable = ReadExcelDataHelper.ConvertExcelToDataTable(location);
 
             ReadExcelDataHelper.ConvertColumnToProperty(dataTable, propertyMapping);
 
             var response = ReadExcelDataHelper.ConvertDataTable<ProductModel>(dataTable);
-            return await Task.Run(() => response.ToList());
+            return response.ToList();
         }
 
         /// <summary>
@@ -33,11 +33,11 @@ namespace Reconcilation.Services
         /// <param name="productModels"></param>
         /// <param name="productModel1"></param>
         /// <returns></returns>
-        public async Task<List<(string, string)>> ReconcileDataInformation(List<ProductModel> productModels, List<ProductModel> productModel1)
+        public  List<(string, string)> ReconcileDataInformation(List<ProductModel> productModels, List<ProductModel> productModel1)
         {
             var response = productModels.Count() > productModel1.Count() ? ReconcileDetail(productModels, productModel1) : ReconcileDetail(productModel1, productModels);
 
-            return await Task.Run(() => response);
+            return response;
         }
 
         /// <summary>
