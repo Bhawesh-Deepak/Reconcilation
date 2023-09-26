@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace Reconcilation
 {
@@ -22,6 +24,21 @@ namespace Reconcilation
 
             IServiceProvider serviceProvider = collection.BuildServiceProvider();
             var reconciliationService = serviceProvider.GetService<IReconciliationService>();
+
+
+            //var builder = new ConfigurationBuilder()
+            //   .SetBasePath(Directory.GetCurrentDirectory())
+            //   .AddJsonFile("MappingFile.json", optional: false);
+
+            //IConfiguration config = builder.Build();
+
+            List<string> mappingData = new List<string>()
+            {
+                  "GrossTransactionAmount",
+                  "InternationalFee",
+                  "NetAmount"
+            };
+
 
             // Map the Excel column to Class property name.
             var propertyMapping = new Dictionary<string, string>()
@@ -63,14 +80,14 @@ namespace Reconcilation
                     { "International fee", nameof(PaymentModel.InternationalFee) },
                     { "Deposit processing fee", nameof(PaymentModel.DepositProcessingFee) },
                     { "Gross transaction amount", nameof(PaymentModel.GrossTransactionAmount) },
-                  
+
 
                     { "Transaction currency", nameof(PaymentModel.TransactionCurency) },
                     { "Exchange rate", nameof(PaymentModel.ExchangeRate) },
                     { "Reference ID", nameof(PaymentModel.ReferenceId) },
                     { "Description", nameof(PaymentModel.Description) },
                     { "Month text", nameof(PaymentModel.MonthText) },
-                  
+
                 };
 
             // Fetch the data information from Excel.
@@ -84,7 +101,7 @@ namespace Reconcilation
             );
 
             // Perform the final reconciliation steps.
-            var response = reconciliationService.ReconcileDataInformation(PaymentModel1, PaymentModel2);
+            var response = reconciliationService.ReconcileDataInformation(PaymentModel1, PaymentModel2, mappingData);
 
             watch.Stop();
 

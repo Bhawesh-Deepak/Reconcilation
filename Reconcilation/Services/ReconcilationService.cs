@@ -1,9 +1,12 @@
-﻿using Reconcilation.Helpers;
+﻿using Microsoft.Extensions.Configuration;
+using Reconcilation.Helpers;
 using Reconcilation.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,9 +36,9 @@ namespace Reconcilation.Services
         /// <param name="productModels"></param>
         /// <param name="productModel1"></param>
         /// <returns></returns>
-        public List<(string, string)> ReconcileDataInformation(List<PaymentModel> productModels, List<PaymentModel> productModel1)
+        public List<(string, string)> ReconcileDataInformation(List<PaymentModel> productModels, List<PaymentModel> productModel1, IEnumerable<string> mappingData)
         {
-            var response = productModels.Count() > productModel1.Count() ? ReconcileDetail(productModels, productModel1) : ReconcileDetail(productModel1, productModels);
+            var response = productModels.Count() > productModel1.Count() ? ReconcileDetail(productModels, productModel1, mappingData) : ReconcileDetail(productModel1, productModels, mappingData);
 
             return response;
         }
@@ -46,27 +49,35 @@ namespace Reconcilation.Services
         /// <param name="parentModels"></param>
         /// <param name="childModels"></param>
         /// <returns></returns>
-        private List<(string, string)> ReconcileDetail(List<PaymentModel> parentModels, List<PaymentModel> childModels)
+        private List<(string, string)> ReconcileDetail(List<PaymentModel> parentModels, List<PaymentModel> childModels, IEnumerable<string> mappingData)
         {
             List<(string, string)> response = new List<(string, string)>();
 
             parentModels.ForEach(parentItem =>
             {
                 var filterChildModel = childModels.FirstOrDefault(x => x.OrderNumber == parentItem.OrderNumber);
-                if (parentItem.NetAmount != filterChildModel.NetAmount)
-                {
-                    response.Add(($"Order Number :{parentItem.OrderNumber} has net Amount : {parentItem.NetAmount} and child model {filterChildModel.NetAmount}", $"{parentItem.OrderNumber}"));
-                }
 
-                if (parentItem.GrossTransactionAmount != filterChildModel.GrossTransactionAmount)
-                {
-                    response.Add(($"Order Number :{parentItem.OrderNumber} has net Amount : {parentItem.GrossTransactionAmount} and child model {filterChildModel.GrossTransactionAmount}", $"{parentItem.OrderNumber}"));
-                }
-
-
+                CompareAndAddMismatchedResponse<PaymentModel>(parentItem, filterChildModel, response,
+                    mappingData.ToArray());
             });
 
             return response;
+        }
+
+
+
+        public static void CompareAndAddMismatchedResponse<T>(T parentItem, T filterChildModel, List<(string, string)> response, params string[] properties)
+        {
+            foreach (var propertyName in properties)
+            {
+                var parentPropertyValue = typeof(T).GetProperty(propertyName)?.GetValue(parentItem, null);
+                var childPropertyValue = typeof(T).GetProperty(propertyName)?.GetValue(filterChildModel, null);
+
+                if (!Equals(parentPropertyValue, childPropertyValue))
+                {
+                    response.Add(($"Order Number: {parentItem.GetType().GetProperty("OrderNumber")?.GetValue(parentItem, null)} has {propertyName}: {parentPropertyValue} and child model {childPropertyValue}", $"{parentItem.GetType().GetProperty("OrderNumber")?.GetValue(parentItem, null)}"));
+                }
+            }
         }
     }
 }

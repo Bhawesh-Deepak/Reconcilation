@@ -1,4 +1,5 @@
-﻿using Reconcilation.Model;
+﻿using Microsoft.Extensions.Configuration;
+using Reconcilation.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Reconcilation.Services
     {
         List<PaymentModel> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping);
 
-        List<(string, string)> ReconcileDataInformation(List<PaymentModel> productModels, List<PaymentModel> productModel1);
+        List<(string, string)> ReconcileDataInformation(List<PaymentModel> productModels, List<PaymentModel> productModel1, IEnumerable<string> mappingData);
 
     }
 }
