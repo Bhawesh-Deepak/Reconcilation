@@ -34,9 +34,9 @@ namespace Reconcilation
 
             List<string> mappingData = new List<string>()
             {
-                  "GrossTransactionAmount",
-                  "InternationalFee",
-                  "NetAmount"
+                nameof(PaymentModel.GrossTransactionAmount),
+                nameof(PaymentModel.InternationalFee),
+                nameof(PaymentModel.NetAmount)
             };
 
 
