@@ -17,13 +17,13 @@ namespace Reconcilation.Services
         /// <param name="location"></param>
         /// <param name="propertyMapping"></param>
         /// <returns></returns>
-        public List<ProductModel> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping)
+        public List<PaymentModel> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping)
         {
             var dataTable = ReadExcelDataHelper.ConvertExcelToDataTable(location);
 
             ReadExcelDataHelper.ConvertColumnToProperty(dataTable, propertyMapping);
 
-            var response = ReadExcelDataHelper.ConvertDataTable<ProductModel>(dataTable);
+            var response = ReadExcelDataHelper.ConvertDataTable<PaymentModel>(dataTable);
             return response.ToList();
         }
 
@@ -33,7 +33,7 @@ namespace Reconcilation.Services
         /// <param name="productModels"></param>
         /// <param name="productModel1"></param>
         /// <returns></returns>
-        public  List<(string, string)> ReconcileDataInformation(List<ProductModel> productModels, List<ProductModel> productModel1)
+        public List<(string, string)> ReconcileDataInformation(List<PaymentModel> productModels, List<PaymentModel> productModel1)
         {
             var response = productModels.Count() > productModel1.Count() ? ReconcileDetail(productModels, productModel1) : ReconcileDetail(productModel1, productModels);
 
@@ -46,35 +46,26 @@ namespace Reconcilation.Services
         /// <param name="parentModels"></param>
         /// <param name="childModels"></param>
         /// <returns></returns>
-        private List<(string, string)> ReconcileDetail(List<ProductModel> parentModels, List<ProductModel> childModels)
+        private List<(string, string)> ReconcileDetail(List<PaymentModel> parentModels, List<PaymentModel> childModels)
         {
             List<(string, string)> response = new List<(string, string)>();
-            for (int i = 0; i < parentModels.Count(); i++)
+
+            parentModels.ForEach(parentItem =>
             {
-                if (childModels.Count > i)
+                var filterChildModel = childModels.FirstOrDefault(x => x.OrderNumber == parentItem.OrderNumber);
+                if (parentItem.NetAmount != filterChildModel.NetAmount)
                 {
-                    if (parentModels[i].Id != childModels[i].Id)
-                    {
-                        response.Add((i.ToString(), "Product Id not matched"));
-                    }
-
-                    if (parentModels[i].ProductName != childModels[i].ProductName)
-                    {
-                        response.Add((i.ToString(), "Product Name not matched"));
-                    }
-
-                    if (parentModels[i].ProductCode != childModels[i].ProductCode)
-                    {
-                        response.Add((i.ToString(), "Product Code not matched"));
-                    }
-
-                    if (parentModels[i].Price != childModels[i].Price)
-                    {
-                        response.Add((i.ToString(), "Product Price not matched"));
-                    }
+                    response.Add(($"Order Number :{parentItem.OrderNumber} has net Amount : {parentItem.NetAmount} and child model {filterChildModel.NetAmount}", $"{parentItem.OrderNumber}"));
                 }
-               
-            }
+
+                if (parentItem.GrossTransactionAmount != filterChildModel.GrossTransactionAmount)
+                {
+                    response.Add(($"Order Number :{parentItem.OrderNumber} has net Amount : {parentItem.GrossTransactionAmount} and child model {filterChildModel.GrossTransactionAmount}", $"{parentItem.OrderNumber}"));
+                }
+
+
+            });
+
             return response;
         }
     }

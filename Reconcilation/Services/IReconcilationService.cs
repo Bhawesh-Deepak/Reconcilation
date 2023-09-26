@@ -9,9 +9,9 @@ namespace Reconcilation.Services
 {
     public interface IReconciliationService
     {
-        List<ProductModel> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping);
+        List<PaymentModel> ReadDataFromLocation(string location, Dictionary<string, string> propertyMapping);
 
-        List<(string, string)> ReconcileDataInformation(List<ProductModel> productModels, List<ProductModel> productModel1);
+        List<(string, string)> ReconcileDataInformation(List<PaymentModel> productModels, List<PaymentModel> productModel1);
 
     }
 }
