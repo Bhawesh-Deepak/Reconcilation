@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace Reconcilation
 {
@@ -26,19 +27,20 @@ namespace Reconcilation
             var reconciliationService = serviceProvider.GetService<IReconciliationService>();
 
 
-            //var builder = new ConfigurationBuilder()
-            //   .SetBasePath(Directory.GetCurrentDirectory())
-            //   .AddJsonFile("MappingFile.json", optional: false);
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("MappingFile.json", optional: false);
 
-            //IConfiguration config = builder.Build();
+            IConfiguration config = builder.Build();
 
-            List<string> mappingData = new List<string>()
+            var mappingList = config.GetSection("Mapping").GetChildren().ToDictionary(x => x.Key, x => x.Value);
+
+            List<string> mappingData = new List<string>();
+
+            mappingList.ToList().ForEach(data =>
             {
-                nameof(PaymentModel.GrossTransactionAmount),
-                nameof(PaymentModel.InternationalFee),
-                nameof(PaymentModel.NetAmount)
-            };
-
+                mappingData.Add(data.Value);
+            });
 
             // Map the Excel column to Class property name.
             var propertyMapping = new Dictionary<string, string>()

@@ -1,6 +1,8 @@
 {
+  "Mapping": {
 
-  "GrossTransactionAmount",
-  "InternationalFee",
-  "NetAmount"
+    "GrossTransactionAmount": "GrossTransactionAmount",
+    "InternationalFee": "InternationalFee",
+    "NetAmount": "InternationalFee"
+  }
 }
